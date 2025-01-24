@@ -1,101 +1,116 @@
 import 'package:flutter/material.dart';
-import 'package:introduction_screen/introduction_screen.dart';
 import 'package:shoppingapp/screens/home_page.dart';
+import 'package:shoppingapp/screens/splash_1.dart';
+import 'package:shoppingapp/screens/splash_2.dart';
+import 'package:shoppingapp/screens/splash_3.dart';
 
-class OnBoardingScreen extends StatelessWidget {
-  final introKey = GlobalKey<IntroductionScreenState>();
+class OnBoardingScreen extends StatefulWidget {
+  const OnBoardingScreen({super.key});
   static String id = 'Splash Page';
+  @override
+  State<OnBoardingScreen> createState() => _OnBoardingScreenState();
+}
 
-  OnBoardingScreen({super.key});
+class _OnBoardingScreenState extends State<OnBoardingScreen> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  final List<Widget> _pages = const [
+    FirstSplashScreen(),
+    SecondSplashScreen(),
+    ThirdSplashScreen(),
+  ];
+
+  void _nextPage() {
+    if (_currentPage < _pages.length - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => const HomePage()));
+    }
+  }
+
+  void _prevPage() {
+    if (_currentPage > 0) {
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    const pageDecoration = PageDecoration(
-      titleTextStyle: TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: PageView.builder(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentPage = index;
+          });
+        },
+        itemCount: _pages.length,
+        itemBuilder: (context, index) {
+          return _pages[index];
+        },
       ),
-      bodyTextStyle: TextStyle(fontSize: 19),
-      bodyPadding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-      pageColor: Colors.white,
-      imagePadding: EdgeInsets.zero,
-    );
-    return IntroductionScreen(
-      key: introKey,
-      globalBackgroundColor: Colors.white,
-      pages: [
-        PageViewModel(
-          title: 'Shop now',
-          body: 'Welcome to Tokoto, Let’s shop!',
-          image: Image.asset('images/splash_1.png', width: 200, height: 200),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-          title: 'Big discount',
-          body:
-              'We help people conect with store \naround United State of America',
-          image: Image.asset('images/splash_2.png', width: 200, height: 200),
-          decoration: pageDecoration,
-        ),
-        PageViewModel(
-            title: 'Free Delivery',
-            body: 'We show the easy way to shop. \nJust stay at home with us',
-            image: Center(
-              child: Image.asset(
-                'images/splash_3.png',
-                width: 200,
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (_currentPage > 0)
+              TextButton(
+                onPressed: _prevPage,
+                child: const Text(
+                  "Prev",
+                  style: TextStyle(
+                    color: Color(0xFFED7646),
+                    fontFamily: "Montserrat",
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
+            else
+              const SizedBox(width: 60),
+            Row(
+              children: List.generate(
+                _pages.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: _currentPage == index
+                          ? Color(0xFFED7646)
+                          : const Color(0xffC4C4C4),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
               ),
             ),
-            decoration: pageDecoration,
-            footer: Padding(
-              padding: const EdgeInsets.only(left: 15, right: 15, top: 50),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  maximumSize: const Size.fromHeight(55),
-                  backgroundColor: const Color(0xFFED7646),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'continue',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
+            TextButton(
+              onPressed: _nextPage,
+              child: Text(
+                _currentPage == _pages.length - 1 ? "Get Started" : "Next",
+                style: const TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFED7646),
+                  fontSize: 18,
                 ),
               ),
-            ))
-      ],
-      showSkipButton: false,
-      showDoneButton: false,
-      showBackButton: true,
-      back: const Text(
-        'Back',
-        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFED7646)),
+            ),
+          ],
+        ),
       ),
-      next: const Text(
-        'Next',
-        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFED7646)),
-      ),
-      onDone: () {},
-      onSkip: () {},
-      dotsDecorator: DotsDecorator(
-          size: const Size.square(10),
-          activeSize: const Size(20, 10),
-          activeColor: const Color(0xFFED7646),
-          color: Colors.black26,
-          spacing: const EdgeInsets.symmetric(horizontal: 3),
-          activeShape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          )),
     );
   }
 }
